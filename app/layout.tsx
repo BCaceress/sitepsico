@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     "Psicóloga clínica especializada em ansiedade, depressão, terapia de casal e desenvolvimento pessoal. Atendimento presencial e online. Agende sua consulta.",
   keywords: [
     "psicóloga",
+    "Simone Caceres",
     "terapia",
     "ansiedade",
     "depressão",

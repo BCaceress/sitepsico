@@ -103,7 +103,7 @@ const infoCards = [
       </svg>
     ),
     title: "Público",
-    description: "Adultos, adolescentes e adolescentes. Atendimento personalizado.",
+    description: "Adultos, adolescentes e crianças. Atendimento personalizado.",
   },
 ];
 

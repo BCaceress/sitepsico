@@ -12,9 +12,9 @@ export default function Footer() {
               Dra. Simone Caceres
             </h3>
             <p className="text-sm text-cream-dark/70 leading-relaxed">
-              PsicÃ³loga ClÃ­nica â€” CRP 07/31309
+              Psicóloga Clínica - CRP 07/31309
               <br />
-              Cuidando da sua saÃºde emocional com acolhimento e
+              Cuidando da sua saúde emocional com acolhimento e
               profissionalismo.
             </p>
             {/* Social Icons */}
@@ -55,14 +55,14 @@ export default function Footer() {
           {/* Quick Links */}
           <div className="space-y-4">
             <h4 className="text-sm font-semibold uppercase tracking-widest text-gold">
-              NavegaÃ§Ã£o
+              Navegação
             </h4>
             <ul className="space-y-3">
               {[
                 { href: "/#sobre", label: "Sobre" },
                 { href: "/#especialidades", label: "Especialidades" },
                 { href: "/#atendimento", label: "Atendimento" },
-                { href: "/blog", label: "Blog" },
+                // { href: "/blog", label: "Blog" },
                 { href: "/#contato", label: "Contato" },
               ].map((link) => (
                 <li key={link.href}>
@@ -85,7 +85,7 @@ export default function Footer() {
             <ul className="space-y-3">
               {[
                 "Ansiedade",
-                "DepressÃ£o",
+                "Depressão",
                 "Terapia de Casal",
                 "Terapia Infantil",
                 "Burnout",
@@ -125,9 +125,9 @@ export default function Footer() {
                   />
                 </svg>
                 <span>
-                  Avenida Presidente Vargas, 2730 - SÃ£o SebastiÃ£o
+                  Avenida Presidente Vargas, 2730 - São Sebastião
                   <br />
-                  Esteio â€” RS
+                  Esteio - RS
                 </span>
               </li>
               <li className="flex items-center gap-2">
@@ -171,12 +171,12 @@ export default function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-cream/40">
-            Â© {new Date().getFullYear()} Dra. Simone Caceres â€” Todos os direitos
+            © {new Date().getFullYear()} Dra. Simone Caceres - Todos os direitos
             reservados.
           </p>
           <div className="flex gap-6 text-xs text-cream/40">
             <Link href="#" className="hover:text-cream/70 transition-colors">
-              PolÃ­tica de Privacidade
+              Política de Privacidade
             </Link>
             <Link href="#" className="hover:text-cream/70 transition-colors">
               Termos de Uso
@@ -187,4 +187,3 @@ export default function Footer() {
     </footer>
   );
 }
-
