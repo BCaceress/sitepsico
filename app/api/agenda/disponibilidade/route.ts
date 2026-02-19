@@ -1,0 +1,208 @@
+import { NextResponse } from "next/server";
+
+type GoogleEvent = {
+  start?: { dateTime?: string; date?: string };
+  end?: { dateTime?: string; date?: string };
+  status?: string;
+  transparency?: string;
+};
+
+type Slot = {
+  date: string;
+  start: string;
+  end: string;
+  hourLabel: string;
+  dateLabel: string;
+  startMs: number;
+  endMs: number;
+};
+
+const TIME_ZONE = process.env.AGENDA_TIME_ZONE ?? "America/Sao_Paulo";
+const DAYS_AHEAD = Number(process.env.AGENDA_DAYS_AHEAD ?? 45);
+
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
+}
+
+function getDateKeyInTimeZone(date: Date, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const year = parts.find((p) => p.type === "year")?.value;
+  const month = parts.find((p) => p.type === "month")?.value;
+  const day = parts.find((p) => p.type === "day")?.value;
+  return `${year}-${month}-${day}`;
+}
+
+function getWeekdayInTimeZone(date: Date, timeZone: string): number {
+  const name = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    weekday: "short",
+  }).format(date);
+
+  const map: Record<string, number> = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+  };
+  return map[name] ?? -1;
+}
+
+function zonedToUtc(dateKey: string, hour: number, minute: number, timeZone: string): Date {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const utcApprox = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+  const asTargetTz = new Date(
+    utcApprox.toLocaleString("en-US", {
+      timeZone,
+      hour12: false,
+    }),
+  );
+  const offset = utcApprox.getTime() - asTargetTz.getTime();
+  return new Date(utcApprox.getTime() + offset);
+}
+
+function buildCandidateSlots(timeZone: string, daysAhead: number): Slot[] {
+  const slots: Slot[] = [];
+  const now = new Date();
+  const dateLabelFormatter = new Intl.DateTimeFormat("pt-BR", {
+    timeZone,
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+  });
+
+  for (let i = 0; i <= daysAhead; i += 1) {
+    const d = new Date(now.getTime() + i * 24 * 60 * 60 * 1000);
+    const dateKey = getDateKeyInTimeZone(d, timeZone);
+    const weekday = getWeekdayInTimeZone(d, timeZone);
+    const dateRef = zonedToUtc(dateKey, 12, 0, timeZone);
+    const dateLabel = dateLabelFormatter.format(dateRef);
+
+    let hours: number[] = [];
+    if (weekday === 4) {
+      hours = [13, 14, 15, 16, 17, 18];
+    }
+    if (weekday === 5) {
+      hours = [8, 9, 10, 11];
+    }
+    if (!hours.length) {
+      continue;
+    }
+
+    hours.forEach((hour) => {
+      const start = zonedToUtc(dateKey, hour, 0, timeZone);
+      const end = zonedToUtc(dateKey, hour + 1, 0, timeZone);
+      slots.push({
+        date: dateKey,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        hourLabel: `${pad2(hour)}:00`,
+        dateLabel,
+        startMs: start.getTime(),
+        endMs: end.getTime(),
+      });
+    });
+  }
+
+  return slots;
+}
+
+function toBusyInterval(event: GoogleEvent): { startMs: number; endMs: number } | null {
+  if (event.status === "cancelled" || event.transparency === "transparent") {
+    return null;
+  }
+
+  const startRaw = event.start?.dateTime ?? event.start?.date;
+  const endRaw = event.end?.dateTime ?? event.end?.date;
+  if (!startRaw || !endRaw) {
+    return null;
+  }
+
+  const startMs = new Date(startRaw).getTime();
+  const endMs = new Date(endRaw).getTime();
+  if (Number.isNaN(startMs) || Number.isNaN(endMs) || endMs <= startMs) {
+    return null;
+  }
+
+  return { startMs, endMs };
+}
+
+export async function GET() {
+  const calendarId = process.env.GOOGLE_CALENDAR_ID;
+  const apiKey = process.env.GOOGLE_CALENDAR_API_KEY;
+
+  if (!calendarId || !apiKey) {
+    return NextResponse.json(
+      {
+        error:
+          "Configuração ausente. Defina GOOGLE_CALENDAR_ID e GOOGLE_CALENDAR_API_KEY no servidor.",
+      },
+      { status: 500 },
+    );
+  }
+
+  const candidateSlots = buildCandidateSlots(TIME_ZONE, DAYS_AHEAD);
+  if (!candidateSlots.length) {
+    return NextResponse.json({ dates: [] });
+  }
+
+  const timeMin = candidateSlots[0]?.start;
+  const timeMax = candidateSlots[candidateSlots.length - 1]?.end;
+  const url = new URL(
+    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
+  );
+  url.searchParams.set("key", apiKey);
+  url.searchParams.set("singleEvents", "true");
+  url.searchParams.set("orderBy", "startTime");
+  url.searchParams.set("maxResults", "2500");
+  url.searchParams.set("timeMin", timeMin);
+  url.searchParams.set("timeMax", timeMax);
+
+  const response = await fetch(url.toString(), {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    return NextResponse.json(
+      { error: "Falha ao consultar Google Calendar.", details: text },
+      { status: 502 },
+    );
+  }
+
+  const data = (await response.json()) as { items?: GoogleEvent[] };
+  const busyIntervals = (data.items ?? [])
+    .map(toBusyInterval)
+    .filter((interval): interval is { startMs: number; endMs: number } => Boolean(interval));
+
+  const freeSlots = candidateSlots.filter((slot) => {
+    return !busyIntervals.some(
+      (busy) => slot.startMs < busy.endMs && busy.startMs < slot.endMs,
+    );
+  });
+
+  const grouped = new Map<string, { date: string; label: string; slots: string[] }>();
+  freeSlots.forEach((slot) => {
+    const current = grouped.get(slot.date);
+    if (!current) {
+      grouped.set(slot.date, {
+        date: slot.date,
+        label: slot.dateLabel,
+        slots: [slot.hourLabel],
+      });
+      return;
+    }
+    current.slots.push(slot.hourLabel);
+  });
+
+  return NextResponse.json({
+    dates: Array.from(grouped.values()),
+  });
+}
