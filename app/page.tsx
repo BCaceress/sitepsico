@@ -7,6 +7,7 @@ import LGPDBanner from "./components/LGPDBanner";
 import Hero from "./components/sections/Hero";
 import Sobre from "./components/sections/Sobre";
 import Especialidades from "./components/sections/Especialidades";
+import QuizTriagem from "./components/sections/QuizTriagem";
 import ComoFunciona from "./components/sections/ComoFunciona";
 import Depoimentos from "./components/sections/Depoimentos";
 import Contato from "./components/sections/Contato";
@@ -23,6 +24,7 @@ export default function Home() {
         <Hero />
         <Sobre />
         <Especialidades />
+        <QuizTriagem />
         <ComoFunciona />
         <Depoimentos />
         <FAQ />
