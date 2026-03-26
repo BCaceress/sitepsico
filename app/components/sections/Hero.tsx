@@ -83,7 +83,7 @@ export default function Hero() {
           {/* Photo Placeholder */}
           <div className="order-1 lg:order-2 flex justify-center lg:justify-end pt-24 lg:pt-0">
             <div
-              className="relative animate-fade-in"
+              className="relative animate-fade-in lg:-translate-x-6"
               style={{ animationDelay: "0.3s" }}
             >
               {/* Decorative ring */}

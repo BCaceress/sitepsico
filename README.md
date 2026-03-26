@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Site Psicóloga Simone Caceres
 
-## Getting Started
+Este projeto é o site institucional da psicóloga Simone Caceres. A aplicação foi desenvolvida para apresentar os serviços oferecidos, áreas de atuação, informações de contato, página de agendamento e uma seção de quiz de triagem com retorno personalizado.
 
-First, run the development server:
+O site foi pensado para transmitir acolhimento, clareza e confiança, com foco em navegação simples, leitura confortável e boa experiência em desktop e mobile.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## O que o site oferece
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Página inicial com apresentação profissional e chamada para agendamento
+- Seções sobre especialidades, atendimento, depoimentos e contato
+- Página de agendamento para consultas online e presenciais
+- Formulário de contato com envio de e-mail
+- Quiz de autoconhecimento com geração de resposta personalizada usando IA
+- Integração com WhatsApp e links de navegação interna
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Ferramentas e tecnologias utilizadas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `Next.js 16` para estrutura da aplicação e rotas
+- `React 19` para construção da interface
+- `TypeScript` para tipagem e manutenção do código
+- `Tailwind CSS 4` para estilização
+- `next/font` para carregamento e otimização de fontes
+- `Nodemailer` para envio de mensagens do formulário de contato
+- `Anthropic API` para geração do retorno textual no quiz de autoconhecimento
+- `ESLint` para padronização e qualidade do código
 
-## Learn More
+## Estrutura geral
 
-To learn more about Next.js, take a look at the following resources:
+- `app/` concentra páginas, componentes, rotas de API e estilos
+- `app/components/` reúne elementos reutilizáveis e seções do site
+- `app/api/` contém os endpoints usados pelo formulário, quiz e agenda
+- `public/` armazena imagens e arquivos públicos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Objetivo do projeto
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O objetivo deste site é reunir presença institucional, captação de contatos e apoio inicial ao usuário em um único ambiente digital, com linguagem humanizada e foco em conversão para atendimento psicológico.
